@@ -32,7 +32,7 @@ async function run() {
    
 	//var  = ($(element).text());
     
-   
+	//NEW COMMENT
 	/*var a = $(this);
 	
 	
