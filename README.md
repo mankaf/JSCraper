@@ -4,9 +4,7 @@
 
 # Installation:
 
-npm i puppeteer
-
-npm install cheerio
+npm i puppeteer && npm install cheerio
 
 // or "yarn add puppeteer" //
 
@@ -19,6 +17,10 @@ node softcom.js
 https://github.com/cheeriojs/cheerio
 
 https://pptr.dev/
+
+https://docs.npmjs.com/
+
+https://yarnpkg.com/lang/en/docs/
 
 # Info:
 
