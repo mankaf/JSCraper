@@ -11,6 +11,6 @@
     "puppeteer": "^1.20.0"
   },
   "scripts": {
-  "start": "node softcom.js"
+  "start": "node scrape.js"
 }
 }
