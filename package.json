@@ -9,5 +9,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "puppeteer": "^1.20.0"
-  }
+  },
+  "scripts": {
+  "start": "node softcom.js"
+}
 }

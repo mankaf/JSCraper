@@ -7,7 +7,8 @@ async function run() {
   slowMo: 250 // slow down by 250ms
   });
   const page = await browser.newPage();
-  await page.goto('https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html?setstishowstyle=0');
+  //await page.goto('https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html?setstishowstyle=0');
+  await page.goto('https://www.alza.cz/alzapc/alza-pocitace/18845023.htm');
   await page.screenshot({path: 'buddy-screenshot.png'});
 
   let content = await page.content();
@@ -22,12 +23,12 @@ async function run() {
    
    var list = [];
    
-   $('a.stihref').each(function (index, element) {
+   $('a.browsinglink').each(function (index, element) {
    
-	var a = $(this);
-   
-	var list = a.text();
-   
+	var a = $(this).attr('class');
+	var b = $(this).next();
+	var list = a;
+    var code = b;
 	//list.push($(element).children().attr('name'));
    
 	//var  = ($(element).text());
@@ -49,8 +50,8 @@ async function run() {
     //var comments = $(subtext).eq(2).text();
 
     var metadata = {
-      //List: list,
-	  Kod: list,
+      List: list,
+	  Kod: code,
 	  //URL: url
 	  //rank: parseInt(rank),
       //title: title,
@@ -61,7 +62,7 @@ async function run() {
     };
     console.log(metadata);
   });
-
+  page.waitFor(5000);
   browser.close();
 }
 
