@@ -28,6 +28,8 @@ https://pusher.com/tutorials/web-scraper-node
 
 https://intoli.com/blog/scrape-infinite-scroll/
 
+https://medium.com/@andrejsabrickis/scrapping-the-content-of-single-page-application-spa-with-headless-chrome-and-puppeteer-d040025f752b
+
 # Data source:
 
 https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html
