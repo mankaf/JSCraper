@@ -7,7 +7,7 @@ async function run() {
   slowMo: 250 // slow down by 250ms
   });
   const page = await browser.newPage();
-  await page.goto('https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html');
+  await page.goto('https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html?setstishowstyle=0');
   await page.screenshot({path: 'buddy-screenshot.png'});
 
   let content = await page.content();
