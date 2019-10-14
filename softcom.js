@@ -25,10 +25,14 @@ async function run() {
    
    $('a.browsinglink').each(function (index, element) {
    
-	var a = $(this).attr('class');
-	var b = $(this).next();
-	var list = a;
-    var code = b;
+	//var a = $(this).attr('class');
+	//var a = $(this).text();
+	var a = $(this).text();
+	var b = $(this).parent().parent().find('div > div > a').text().trim(); //NAzov trimnuty
+	
+	
+	var name = b;
+
 	//list.push($(element).children().attr('name'));
    
 	//var  = ($(element).text());
@@ -48,10 +52,11 @@ async function run() {
     //var points = $(subtext).eq(0).text();
     //var username = $(subtext).eq(1).text();*/
     //var comments = $(subtext).eq(2).text();
+	
 
     var metadata = {
-      List: list,
-	  Kod: code,
+      Nazov: name,
+	  //Kod: code,
 	  //URL: url
 	  //rank: parseInt(rank),
       //title: title,
@@ -62,7 +67,7 @@ async function run() {
     };
     console.log(metadata);
   });
-  page.waitFor(5000);
+  await page.waitFor(5000);
   browser.close();
 }
 
