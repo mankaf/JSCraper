@@ -1,0 +1,9 @@
+{
+  "name": "JSCraper",
+  "version": "1.0.0",
+  "description": "dyg more",
+  "main": "index.js",
+  "repository": "https://github.com/mankaf/JSCraper.git",
+  "author": "Manka F",
+  "license": "MIT"
+}
