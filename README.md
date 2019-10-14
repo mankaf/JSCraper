@@ -4,9 +4,15 @@
 
 # Installation:
 
+git clone https://github.com/mankaf/JSCraper.git
+
+cd JSCraper
+
 npm i puppeteer && npm install cheerio
 
 // or "yarn add puppeteer" //
+
+# Start:
 
 node softcom.js
 
