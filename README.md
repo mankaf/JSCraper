@@ -14,7 +14,7 @@ npm i puppeteer && npm install cheerio
 
 # Start:
 
-node softcom.js
+node scraper.js
 
 
 
