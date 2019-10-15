@@ -10,13 +10,8 @@ git clone https://github.com/mankaf/JSCraper.git
 
 cd JSCraper
 
-npm i sanitize-filename
+npm i sanitize-filename && npm i puppeteer && npm i cheerio
 
-npm i puppeteer 
-
-npm install cheerio
-
-// or "yarn add puppeteer" //
 
 # Start:
 
