@@ -22,7 +22,7 @@ npm install cheerio
 
 docker-compose up
 
-New window
+in new window run
 
 node scrape.js
 
