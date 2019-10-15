@@ -1,10 +1,15 @@
 # JSCraper
 
+# Prerequisites:
 
+! Install NPM !
 
-# Installation:
+! Install Yarn !
 
 ! Install Docker !
+
+# Installation of packeges:
+
 
 git clone https://github.com/mankaf/JSCraper.git
 
