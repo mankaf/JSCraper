@@ -1,76 +1,207 @@
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
+const sanitize = require('sanitize-filename');
 
+const dataPath = path.join(__dirname, 'data');
+
+const blockedResourceTypes = [
+  'image',
+  'media',
+  'font',
+  'texttrack',
+  'object',
+  'beacon',
+  'csp_report',
+  'imageset',
+];
+
+const skippedResources = [
+  'quantserve',
+  'adzerk',
+  'doubleclick',
+  'adition',
+  'exelator',
+  'sharethrough',
+  'cdn.api.twitter',
+  'google-analytics',
+  'googletagmanager',
+  'google',
+  'fontawesome',
+  'facebook',
+  'analytics',
+  'optimizely',
+  'clicktale',
+  'mixpanel',
+  'zedo',
+  'clicksor',
+  'tiqcdn',
+];
+
+const serialize = (data) => JSON.stringify(data, null, 2);
+
+const writeDataToFile = (data, filename) => new Promise((resolve, reject) => {
+  fs.writeFile(path.join(dataPath, filename), serialize(data), (err) => {
+    if (err) {
+      console.error(`File ${filename} ERROR`, err);
+      reject(err);
+    } else {
+      console.log(`File created: ${filename}`);
+      resolve()
+    }
+  });
+})
+
+const URL = 'https://www.alza.cz/';
 
 async function run() {
-  const browser = await puppeteer.launch({headless: false,
-  slowMo: 250 // slow down by 250ms
+  const browser = await puppeteer.connect({
+    browserWSEndpoint: 'ws://localhost:3000' + '?--window-size=1920x1080' +
+      '&--no-sandbox=true' +
+      '&--disable-setuid-sandbox=true' +
+      '&--disable-dev-shm-usage=true' +
+      '&--disable-accelerated-2d-canvas=true' +
+      '&--disable-gpu=true'
   });
+
   const page = await browser.newPage();
-  //await page.goto('https://www.softcom.cz/eshop/herni-konzole-playstation-4_c12286.html?setstishowstyle=0');
-  await page.goto('https://www.alza.cz/alzapc/alza-pocitace/18845023.htm');
-  //await page.screenshot({path: 'buddy-screenshot.png'});
 
-  let content = await page.content();
-  var $ = cheerio.load(content);
-  
- // console.log(content);
-  
-  
-  
-  //$('a.stihref').each(function(i, element){
-  
-   
-   var list = [];
-   
-   $('div[class="fb"]').each(function (index, element) {
-   
-	//var a = $(this).attr('class');
-	//var a = $(this).text();
-	var a = $(this).text();
-	var b = $(this).find('a').text().trim(); //NAzov trimnuty
-	var c = $(this).parent().next().find('span[class="c2"]').text().trim(); //NAzov trimnuty
-	
-	
-	var name = b;
-	var price = c;
+  // skip and block files we don't need
+  await page.setRequestInterception(true);
 
-	//list.push($(element).children().attr('name'));
-   
-	//var  = ($(element).text());
-    
-	//NEW COMMENT
-	/*var a = $(this);
-	
-	
-	var name = a.parent().text();
-	var url = a.attr('href');
-	var code = a.parent().parent().attr('class');
-    //var a = $(this).prev();
-   // var rank = a.parent().parent().text();
-    //var title = a.text();
-    //var url = a.attr('href');
-    //var subtext = a.parent().parent().next().children('.subtext').children();
-    //var points = $(subtext).eq(0).text();
-    //var username = $(subtext).eq(1).text();*/
-    //var comments = $(subtext).eq(2).text();
-	
+  page.on('request', request => {
+    const requestUrl = request._url.split('?')[0].split('#')[0];
 
-    var metadata = {
-      Nazov: name,
-	  Price: price,
-	  //URL: url
-	  //rank: parseInt(rank),
-      //title: title,
-      //url: url,
-      //points: parseInt(points),
-      //username: username,
-      //comments: parseInt(comments)
-    };
-    console.log(metadata);
+    if (
+      blockedResourceTypes.includes(request.resourceType()) ||
+      skippedResources.some(resource => requestUrl.includes(resource))
+    ) {
+      request.abort();
+    } else {
+      request.continue();
+    }
   });
-  await page.waitFor(5000);
-  browser.close();
+
+  const getPageContent = (pageUrl) => new Promise(async (resolve, reject) => {
+    console.log(` - FETCH: ${pageUrl}`);
+
+    try {
+      const response = await page.goto(pageUrl, {
+        timeout: 25000,
+        waitUntil: 'networkidle2',
+      });
+
+      if (response._status < 400) {
+        await page.waitFor(3000);
+
+        const pageContent = await page.content();
+
+        console.log('   - SUCCESS');
+        resolve(pageContent);
+      } else {
+        throw new Error(response._status);
+      }
+    } catch (e) {
+      console.log('   - ERROR', e);
+      reject(e)
+    }
+  })
+
+  const getAllBrands = async () => {
+    const pageUrl = url.resolve(URL, 'znacky.htm');
+    const linksSelector = '#marksmainc .list a';
+
+    const pageContent = await getPageContent(pageUrl);
+
+    const $ = cheerio.load(pageContent)
+
+    const brandsSet = $(linksSelector).map((index, element) => {
+      const $el = $(element);
+
+      return {
+        name: $el.text(),
+        url: url.resolve(URL, $el.attr('href'))
+      }
+    });
+
+    return brandsSet.get();
+  }
+
+  const getProducts = async (pageUrl) => {
+    const itemsSelector = '#boxes .box';
+    const nameSelector = '.top a.name';
+    const priceSelector = '.bottom .price .c2';
+    const nextPageLinkSelector = '#pagerbottom a.next';
+
+    const pageContent = await getPageContent(pageUrl);
+
+    const $ = cheerio.load(pageContent);
+
+    const productsSet = $(itemsSelector).map((index, element) => {
+      const $el = $(element);
+
+      const id = $el.data('id');
+      const name = $el.find(nameSelector).text();
+      const price = $el.find(priceSelector).text();
+
+      return {
+        id,
+        name,
+        price
+      }
+    });
+
+    const products = productsSet.get();
+
+    const nextPageLink = $(nextPageLinkSelector);
+
+    if (nextPageLink && nextPageLink.attr('href')) {
+      const nextPageUrl = url.resolve(pageUrl, nextPageLink.attr('href'));
+      const nextProducts = await getProducts(nextPageUrl);
+
+      return [...products, ...nextProducts];
+    }
+
+    return products
+  }
+
+  const processBrands = async (brands) => {
+    const failedBrands = [];
+
+    for (const brand of brands) {
+      console.log('___________________________________');
+      console.log(`${brand.name}`);
+
+      try {
+        const products = await getProducts(brand.url);
+        const filename = `${sanitize(brand.name)}.json`;
+
+        await writeDataToFile(products, filename);
+
+        console.log(`  SUCCESS`);
+      } catch (err) {
+        failedBrands.push(brand);
+
+        console.log(`${brand.name}: ERROR`);
+        console.error(err);
+      }
+    }
+
+    if (failedBrands.length) {
+      await processBrands(failedBrands);
+    }
+  }
+
+  try {
+    const allBrands = await getAllBrands();
+    await processBrands(allBrands);
+  } catch (e) {
+    console.error(e);
+  }
+
+  browser.disconnect();
 }
 
 run();
