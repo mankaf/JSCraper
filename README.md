@@ -28,6 +28,8 @@ https://docs.npmjs.com/
 
 https://yarnpkg.com/lang/en/docs/
 
+https://docs.docker.com/
+
 # Info:
 
 https://medium.com/swlh/an-introduction-to-web-scraping-with-puppeteer-3d35a51fdca0
