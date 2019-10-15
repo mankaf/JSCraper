@@ -4,15 +4,25 @@
 
 # Installation:
 
+! Install Docker !
+
 git clone https://github.com/mankaf/JSCraper.git
 
 cd JSCraper
 
-npm i puppeteer && npm install cheerio
+npm i sanitize-filename
+
+npm i puppeteer 
+
+npm install cheerio
 
 // or "yarn add puppeteer" //
 
 # Start:
+
+docker-compose up
+
+New window
 
 node scrape.js
 
